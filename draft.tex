@@ -1,0 +1,175 @@
+
+\documentclass[a4paper,abstracton]{scrartcl}
+\pdfminorversion=5
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+
+\usepackage{dsfont} %For indicatior function \mathds{1}
+
+\usepackage{accents}
+\newcommand{\ubar}[1]{\underaccent{\bar}{#1}}
+
+\usepackage{booktabs}
+% \usepackage{algorithm}
+% \usepackage{algorithmic}
+
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+
+
+\usepackage{graphicx}
+\usepackage{color}
+
+% \usepackage{subcaption}
+\usepackage{subfigure}
+
+\usepackage{a4wide}
+
+%\usepackage{setspace}
+
+%\newtheorem{conclusion}[theorem]{Conclusion}
+%\newtheorem{condition}[theorem]{Condition}
+% \numberwithin{equation}{section} 
+% \numberwithin{table}{section}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{observation}[theorem]{Observation}
+%  \newtheorem{proof}{Proof}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{prop}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{cor}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+% \numberwithin{observation}{section}
+
+
+\usepackage{authblk}
+\renewcommand\Affilfont{\small}
+
+\allowdisplaybreaks
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+
+\begin{document}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%  Macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Distributionally Robust Optimization}
+
+\author{Marc Goerigk}
+\author{Michael Hartisch}
+
+\affil{Network and Data Science Management, University of Siegen,\newline Unteres Schlo{\ss} 3, 57072 Siegen, Germany}	
+
+    
+\date{}
+
+\maketitle
+
+
+
+\begin{abstract}
+
+\end{abstract}
+
+\noindent\textbf{Keywords:} 
+
+\section{First Example}
+\subsection{First Try; Going along \cite{wang2019solution}}
+We consider the selection problem where $p$ out of $n$ items have to be selected, while trying to minimize the resulting costs. The cost coefficients are uncertain and in particular random parameters.
+ Following  \cite{wang2019solution} we assume that the distribution of the cost coefficients $\pmb{\xi}\in \mathbb{R}^n$ has a finite support, i.e. there are only $\vert\Omega\vert=N$ scenarios. 
+\begin{align*}
+\textnormal{(SEL)} \qquad\min \ & \alpha\\
+\textnormal{s.t.}\ & \sum_{i \in [m]} x_i =p \\
+&\mathbb{P}\left\lbrace\sum_{i \in [n]}\xi_i x_i \leq \alpha\right\rbrace \geq 1-\epsilon\\
+& \pmb{x} \in \{0,1\}^n
+\end{align*}
+
+\begin{align*}
+\textnormal{(DR-SEL)} \qquad\min \ & \alpha\\
+\textnormal{s.t.}\ & \sum_{i \in [m]} x_i =p \\
+&\inf_{\mathbb{P}\in \mathcal{P}}\mathbb{P}\left\lbrace\sum_{i \in [n]}\xi_i x_i \leq \alpha\right\rbrace \geq 1-\epsilon\\
+& \pmb{x} \in \{0,1\}^n
+\end{align*}
+
+For now, $\alpha$ is a fixed value. In this case the above problem reduces to a feasibility problem and can be dealt with the techniques used in \cite{wang2019solution}. The binary reformulation of (SEL) is 
+
+\begin{align*}
+\textnormal{(SEL(Bin))} \qquad\min \ & \alpha\\
+\textnormal{s.t.}\ & \sum_{i \in [m]} x_i =p \\
+&\sum_{i \in [n]} \xi_i^\omega x_i + (M^\omega - \alpha) z_\omega \leq M^\omega && \forall\omega \in \Omega\\
+&\sum_{\omega \in \Omega} p_\omega z_\omega \geq 1-\epsilon\\
+& \pmb{x} \in \{0,1\}^n
+\end{align*}
+Note that in case of $\alpha$ being a variable the second constraint has to be linearized. In \cite{wang2019solution} upper bounds for $M^\omega$ are derived which can be done here similarly, in case of constant $\alpha$. The distributionally robust problem can be reformulated similarly:
+
+\begin{align*}
+\textnormal{(DR-SEL(Bin))} \qquad\min \ & \alpha\\
+\textnormal{s.t.}\ & \sum_{i \in [m]} x_i =p \\
+&\sum_{i \in [n]} \xi_i^\omega x_i + (M^\omega - \alpha) z_\omega \leq M^\omega && \forall\omega \in \Omega\\
+&\inf_{\mathbb{P}\in \mathcal{P}} \sum_{\omega \in \Omega} p_\omega z_\omega \geq 1-\epsilon\\
+& \pmb{x} \in \{0,1\}^n
+\end{align*}
+The above is semi-infinite due to the potential infinite ambiguity set $\mathcal{P}$. In case of Wasserstein ambiguity, due to its polyhedral structure, the respective constraint can be represented by its extreme points making the formulation finite.
+
+\textcolor{red}{Potentielle Forschungsfrage: Kann man auch gute Bounds für $M^\omega$ bauen, wenn das $\alpha$ nicht fixiert ist? Dann anwenden auf allgemeine kombinatorische Probleme, Ich konnte bisher noch nicht überblicken ob ein variables $\alpha$ Probleme bereitet.}
+
+For the case of Wasserstein ambiguity the dual reformulation was built in \cite{wang2019solution}.  They claim that they were not able to solve the dual formulation for none of their test cases within 10 hours.
+
+\textcolor{red}{Potentielle Forschungsfragen: Kann man Laufzeit-Argumente für die gefundene dualen Formulierungen finden? Wie sieht die duale Reformulierung für andere Ambiguity sets aus? Lassen sich somit Komplexitätsaussagen für allgemeine kombinatorische Probleme treffen? Hier sollte vermutlich $\alpha$ immer auch variabel sein.}
+
+
+
+\subsection{Selection problem as portfolio optimization}
+The selection problem also can be interpreted as a portfolio optimization problem, where out of $n$ assets exactly $p$ have to be selected with similar weights, i.e. each of the $p$ assets will be added to the portfolio in the same proportion. For portfolio optimization a vast number of research articles can be found that deal with distributionally robust problems on risk measures. In the following we again assume a fixed set of scenarios $\Omega$ where their probability distribution lies within some ambiguity set $\mathcal{P}$. Additionally to maximizing the worst case payoff, a risk measure $\rho_p$ should be less than or equal to some fixed value $z$.
+
+\begin{align*}
+\textnormal{(DR-SEL-Risk)} \qquad\max \ & \alpha\\
+\textnormal{s.t.}\ & \sum_{i \in [m]} x_i =p \\
+&\sum_{i \in [n]}\xi^\omega_i x_i \geq \alpha && \forall \omega \in \Omega \\
+&\rho_p(\pmb{x})\leq z && \forall p\in \mathcal{P}\\
+& \pmb{x} \in \{0,1\}^n
+\end{align*}
+In the above problem, for a selection of $p$ assets the worst case payoff is maximized, while the selected risk measure is kept within a predefined limit $z$. 
+For example, if the risk measure is the variance the constraint might look like this:
+
+$$\sqrt{\sum_{\omega \in \Omega} p_\omega\left(\pmb{\xi^\omega}^\top \pmb{x}-\mathbb{E}_p[\pmb{\xi}^\top \pmb{x}]\right)^2} \leq z \qquad \forall p \in \mathcal{P}$$
+Of course, instead of maximizing the worst case outcome, one could maximize the average outcome by using the following constraint:
+$$\sum_{\omega \in \Omega}p_\omega\sum_{i \in [n]}\xi^\omega_i x_i \geq \alpha \qquad \forall p \in \mathcal{P}$$
+Depending on the used risk measure and of course depending on the used ambiguity set, this problem can be reformulated to a tractable form \cite{postek2014tractable}.
+
+\textcolor{red}{Bei den Risk-Measures sehe ich keine gute Einstiegsmöglichkeit, insbesondere da es schon sehr viel zu geben scheint.}
+
+\subsection{Outlook on explorable distributionally robust problems}
+What can we actually explore? This depends on the used ambiguity set and whether $\Omega$ is finite and predefined. For now we assume a finite, given scenario set $\Omega$. We might explore:
+\begin{itemize}
+\item The exact probability of at most $\Gamma$ scenarios. (budgeted explorability). Differ between handpicked and not handpicked scenarios?
+\item The true expected value of $\pmb{\xi}^\top \pmb{x}$
+\item the scenario with the largest/smallest probability
+\item The true variance 
+\end{itemize}
+The explorable Setting:
+\begin{itemize}
+\item[1.] Select a query regarding the ambiguity set
+\item[2.] The opponent answers the query
+\item[3.] Select a solution
+\item[4.] Opponent selects distribution from the ambiguity set that adheres to the answer of the query
+\item[5.] Evaluate Solution
+\end{itemize}
+
+\bibliographystyle{alpha}
+\bibliography{references}
+\end{document}
